@@ -1,8 +1,18 @@
 'use strict';
 class SliderCarousel {
 
+    direction = 0;
 
-    constructor(sliderWrapper, slider, sliderItem, slidesToShow, slidesToScroll = 1, nextSlide, prevSlide, position = 0) {
+    constructor({
+        sliderWrapper,
+        slider,
+        sliderItem,
+        slidesToShow = 1,
+        slidesToScroll = 1,
+        nextSlide = false,
+        prevSlide = false,
+        position = 0
+    }) {
         this.slidesToScroll = slidesToScroll;
         this.sliderWrapper = document.querySelector(sliderWrapper);
         this.slider = document.querySelector(slider);
@@ -12,25 +22,39 @@ class SliderCarousel {
         this.prevSlide = document.querySelector(prevSlide);
         this.position = position;
 
-        this.arrCount = this.sliderCount();
-
-
     }
 
-    sliderCount() {
-        let arr = [];
-        this.sliderItem.forEach(slide => {
-            arr.push(slide);
-        });
-        return arr;
+    createNextButton() {
+        if (!this.nextSlide) {
+            let nextButton = document.createElement('button');
+            nextButton.classList.add('slider__next-style');
+            nextButton.innerHTML = `next`;
+            nextButton.style.width = '50px';
+            nextButton.style.height = '35px';
+            this.sliderWrapper.append(nextButton);
+            this.nextSlide = nextButton; 
+        }
+    }
+
+    createPrevButton() {
+        if (!this.prevSlide) {
+            let prevButton = document.createElement('button');
+            prevButton.classList.add('slider__prev-style');
+            prevButton.innerHTML = `prev`;
+            prevButton.style.width = '50px';
+            prevButton.style.height = '35px';
+            this.sliderWrapper.append(prevButton);
+            this.prevSlide = prevButton; 
+        }
     }
 
     sliderStyle() {
         const style = document.createElement('style');
         style.innerHTML = `
             .slider__wrapper-style {
-                // overflow: hidden;
+                overflow: hidden;
                 width: ${this.sliderItem[0].clientWidth * this.slidesToShow}px;
+                position: relative;
             }
            .slider-style {
                display: flex;
@@ -38,6 +62,21 @@ class SliderCarousel {
            .slider__item-style {
                flex: 0 0 ${100 / this.slidesToShow}%;
                margin: 0;
+           }
+           .slider__prev-style {
+            position: absolute;
+            top: ${this.sliderItem[0].clientHeight / 2 - this.nextSlide.offsetHeight / 2}px;
+            left: 0;
+            outline: none;
+            cursor: pointer;
+           }
+           .slider__next-style {
+            position: absolute;
+            top: ${this.sliderItem[0].clientHeight / 2 - this.prevSlide.offsetHeight / 2}px;
+            left: ${this.sliderItem[0].clientWidth * this.slidesToShow - this.prevSlide.offsetWidth }px;
+            outline: none;
+            cursor: pointer;
+            }
            }`;
         document.head.append(style);
         this.sliderWrapper.classList.add('slider__wrapper-style');
@@ -48,63 +87,24 @@ class SliderCarousel {
     }
 
 
-    createSlidesCopy() {
-        if(this.position === this.arrCount.length - 1) {
-            let elem = this.arrCount[this.arrCount.length - 1];
-            this.slider.prepend(elem);
-            this.position = 0;
-            this.slider.style.transition = `none`;
-            this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position * this.slidesToScroll}px)`;
-            let elem2 = this.arrCount.pop();
-            this.arrCount.unshift(elem2);
-
-        }else {
-            return;
-        }
-
-
-    }
-
-    createSlidesLastCopy() {
-        if(this.position === 0) {
-            let elem = this.arrCount[0];
-            this.slider.append(elem);
-            this.position = this.arrCount.length - 1;
-            this.slider.style.transition = `none`;
-            this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position * this.slidesToScroll}px)`;
-            let elem2 = this.arrCount.shift();
-            this.arrCount.push(elem2);
-
-        }else {
-            return;
-        }
-    }
-
-
     nextSlideF() {
-            this.slider.addEventListener('transitionend', this.createSlidesCopy.bind(this));
-            this.position += 1;
-            this.slider.style.transition = `1s all`;
-            this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position * this.slidesToScroll}px)`;
+        this.direction = 1;
+        this.position += 1;
+        this.slider.style.transition = `1s all`;
+        this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position * this.slidesToScroll}px)`;
     }
 
     prevSlideF() {
-        this.slider.addEventListener('transitionend', this.createSlidesLastCopy.bind(this));
+        this.direction = -1;
         this.position -= 1;
         this.slider.style.transition = `1s all`;
         this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position * this.slidesToScroll}px)`;
     }
 
     start() {
-        this.position += 1;
-        this.slider.style.transition = `none`;
-        this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position * this.slidesToScroll}px)`;
-
+        this.createNextButton();
+        this.createPrevButton();
         this.sliderStyle();
-        this.sliderCount();
-
-
-
 
         this.nextSlide.addEventListener('click', this.nextSlideF.bind(this));
         this.prevSlide.addEventListener('click', this.prevSlideF.bind(this));
