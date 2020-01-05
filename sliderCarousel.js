@@ -9,7 +9,8 @@ class SliderCarousel {
         slidesToScroll = 1,
         nextSlide = false,
         prevSlide = false,
-        position = 0
+        position = 0,
+        dots = true,
     }) {
         this.slidesToScroll = slidesToScroll;
         this.sliderWrapper = document.querySelector(sliderWrapper);
@@ -19,6 +20,7 @@ class SliderCarousel {
         this.nextSlide = document.querySelector(nextSlide);
         this.prevSlide = document.querySelector(prevSlide);
         this.position = position;
+        this.dots = dots;
 
         this.sliderItems = this.saveSlides();
 
@@ -85,7 +87,25 @@ class SliderCarousel {
             outline: none;
             cursor: pointer;
             }
-           }`;
+           .slider__dots-wrapper-style {
+               display: flex;
+               justify-content: space-around;
+           }
+           .slider__dots-item-style {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: 0.5s all;
+           }
+           .slider__dots-item-style:hover {
+            background: black;
+          }
+          .slider__dots-active-item-style {
+            transition: 0.5s all;
+            background: black;
+          }`;
         document.head.append(style);
         this.sliderWrapper.classList.add('slider__wrapper-style');
         this.slider.classList.add('slider-style');
@@ -112,9 +132,6 @@ class SliderCarousel {
             return;
         }
     }
-
-
-
 
     nextSlideF() {
         if (this.position === this.sliderItems.length - 1) return;
@@ -144,11 +161,29 @@ class SliderCarousel {
 
     }
 
+    createDots() {
+        if(this.dots) {
+            let div = document.createElement('div');
+            div.classList.add('slider__dots-wrapper-style');
+            this.sliderWrapper.append(div);
+
+            for(let i = 0; i < this.sliderItems.length; i++) {
+                let dot = document.createElement('div');
+                dot.classList.add('slider__dots-item-style');
+                div.append(dot);
+            }
+        }else {
+            return;
+        }
+        
+    }
+
     start() {
         this.createNextButton();
         this.createPrevButton();
         this.sliderStyle();
         this.startsliderPosition();
+        this.createDots();
 
         this.nextSlide.addEventListener('click', this.nextSlideF.bind(this));
         this.prevSlide.addEventListener('click', this.prevSlideF.bind(this));
