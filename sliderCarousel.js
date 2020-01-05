@@ -1,8 +1,6 @@
 'use strict';
 class SliderCarousel {
 
-    direction = 0;
-
     constructor({
         sliderWrapper,
         slider,
@@ -22,6 +20,16 @@ class SliderCarousel {
         this.prevSlide = document.querySelector(prevSlide);
         this.position = position;
 
+        this.sliderItems = this.saveSlides();
+
+    }
+
+    saveSlides() {
+        let arr = [];
+        for (let i = 0; i < this.sliderItem.length; i++) {
+            arr.push(this.sliderItem[i]);
+        }
+        return arr;
     }
 
     createNextButton() {
@@ -32,7 +40,7 @@ class SliderCarousel {
             nextButton.style.width = '50px';
             nextButton.style.height = '35px';
             this.sliderWrapper.append(nextButton);
-            this.nextSlide = nextButton; 
+            this.nextSlide = nextButton;
         }
     }
 
@@ -44,7 +52,7 @@ class SliderCarousel {
             prevButton.style.width = '50px';
             prevButton.style.height = '35px';
             this.sliderWrapper.append(prevButton);
-            this.prevSlide = prevButton; 
+            this.prevSlide = prevButton;
         }
     }
 
@@ -86,25 +94,61 @@ class SliderCarousel {
         });
     }
 
+    hundlerNext() {
+        let lastSlide = this.sliderItems[this.sliderItems.length - 1];
+        this.slider.style.transition = `none`;
+        this.position = 0;
+        this.slider.prepend(lastSlide);
+        this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.slidesToScroll * this.position}px)`;
+        this.sliderItems.unshift(lastSlide);
+        this.sliderItems.pop();
+    }
+
+    infiniteSliderNext() {
+        if (this.position === this.sliderItems.length - 1) {
+            let hundlerN = this.hundlerNext();
+            this.slider.removeEventListener('transitionend', hundlerN);
+        }else {
+            return;
+        }
+    }
+
+
+
 
     nextSlideF() {
-        this.direction = 1;
+        if (this.position === this.sliderItems.length - 1) return;
         this.position += 1;
         this.slider.style.transition = `1s all`;
-        this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position * this.slidesToScroll}px)`;
+        this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.slidesToScroll * this.position}px)`;
+        this.slider.addEventListener('transitionend', this.infiniteSliderNext.bind(this));
+
     }
 
     prevSlideF() {
-        this.direction = -1;
+        if(this.position === 0) return;
         this.position -= 1;
         this.slider.style.transition = `1s all`;
-        this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position * this.slidesToScroll}px)`;
+        this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll * this.position}px)`;
+        this.slider.addEventListener('transitionend', this.startsliderPosition.bind(this));
+        
+    }
+
+    startsliderPosition() {
+        if(this.position === 0) {
+            this.hundlerNext();
+            this.position = 1;
+            this.slider.style.transition = `none`;
+            this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll}px)`;
+        }
+
     }
 
     start() {
         this.createNextButton();
         this.createPrevButton();
         this.sliderStyle();
+        this.startsliderPosition();
 
         this.nextSlide.addEventListener('click', this.nextSlideF.bind(this));
         this.prevSlide.addEventListener('click', this.prevSlideF.bind(this));
