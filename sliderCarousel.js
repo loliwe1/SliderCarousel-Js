@@ -136,6 +136,7 @@ class SliderCarousel {
         this.position ++;
         this.slider.style.transition = `1s all`;
         this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.slidesToScroll * this.position}px)`;
+        this.slider.addEventListener('transitionend', this.infiniteSliderNext.bind(this));
     }
 
     prevSlideF() {
@@ -143,6 +144,23 @@ class SliderCarousel {
         this.position --;
         this.slider.style.transition = `1s all`;
         this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll * this.position}px)`;
+        this.slider.addEventListener('transitionend', this.infiniteSliderPrev.bind(this));
+    }
+
+    infiniteSliderNext() {
+        if(this.position === this.sliderItems.length + this.slidesToShow) {
+            this.position = this.slidesToShow;
+            this.slider.style.transition = `none`;
+            this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll * this.position}px)`;
+
+        }
+    }
+    infiniteSliderPrev() {
+        if(this.position === 0) {
+            this.position = this.sliderItems.length;
+            this.slider.style.transition = `none`;
+            this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll * this.position}px)`;
+        }
     }
 
     startPosition() {
