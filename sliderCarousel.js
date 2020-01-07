@@ -23,7 +23,6 @@ class SliderCarousel {
         this.dots = dots;
 
         this.sliderItems = this.saveSlides();
-        this.counter = 0;
 
     }
 
@@ -33,6 +32,22 @@ class SliderCarousel {
             arr.push(this.sliderItem[i]);
         }
         return arr;
+    }
+
+
+    createDuplicateSlide() {
+        let revArr =  [...this.sliderItems].reverse();
+
+        for(let i = 0 ; i < this.slidesToShow; i++) {
+            let firstElem = revArr[i].cloneNode(true);
+            this.slider.prepend(firstElem);
+        }
+
+        for(let i = 0 ; i < this.slidesToShow; i++) {
+            let lastElem = this.sliderItems[i].cloneNode(true);
+            this.slider.append(lastElem);
+        }
+
     }
 
     createNextButton() {
@@ -115,97 +130,35 @@ class SliderCarousel {
         });
     }
 
-    hundlerNext() {
-        let lastSlide = this.sliderItems[this.sliderItems.length - 1];
-        this.slider.style.transition = `none`;
-        this.position = 0;
-        this.slider.prepend(lastSlide);
-        this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.slidesToScroll * this.position}px)`;
-        this.sliderItems.unshift(lastSlide);
-        this.sliderItems.pop();
-    }
-
-    infiniteSliderNext() {
-        if (this.position === this.sliderItems.length - 1) {
-            let hundlerN = this.hundlerNext();
-            this.slider.removeEventListener('transitionend', hundlerN);
-        } else {
-            return;
-        }
-    }
 
     nextSlideF() {
-        if (this.position >= this.sliderItems.length - 1) return;
-        this.counter++;
-        if(this.counter === this.sliderItems.length) this.counter = 0;
-        this.position += 1;
+        if (this.position >= this.sliderItems.length + this.slidesToShow) return;
+        this.position ++;
         this.slider.style.transition = `1s all`;
         this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.slidesToScroll * this.position}px)`;
-        this.slider.addEventListener('transitionend', this.infiniteSliderNext.bind(this));
-        this.activeDot();
-
     }
 
     prevSlideF() {
         if (this.position <= 0) return;
-        this.counter--;
-        if(this.counter < 0) this.counter = this.sliderItems.length - 1;
-        this.position -= 1;
+        this.position --;
         this.slider.style.transition = `1s all`;
         this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll * this.position}px)`;
-        this.slider.addEventListener('transitionend', this.startsliderPosition.bind(this));
-        this.activeDot();
+    }
 
+    startPosition() {
+        this.position = this.slidesToShow;
+        this.slider.style.transition = `none`;
+        this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll * this.position}px)`;
 
     }
 
-    startsliderPosition() {
-        if (this.position === 0) {
-            this.hundlerNext();
-            this.position = 1;
-            this.slider.style.transition = `none`;
-            this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll}px)`;
-
-        }
-
-    }
-
-    createDots() {
-        if (this.dots) {
-            let div = document.createElement('div');
-            div.classList.add('slider__dots-wrapper-style');
-            this.sliderWrapper.append(div);
-
-            for (let i = 0; i < this.sliderItems.length; i++) {
-                let dot = document.createElement('div');
-                dot.classList.add('slider__dots-item-style');
-                div.append(dot);
-            }
-        } else {
-            return;
-        }
-
-    }
-
-    activeDot() {
-        let dots = document.querySelectorAll('.slider__dots-item-style');
-        for (let i = 0; i < this.sliderItems.length; i++) {
-
-            dots[i].classList.remove('slider__dots-active-item-style')
-            if(i === this.counter) {
-                dots[i].classList.add('slider__dots-active-item-style')
-
-            }
-        }
-    }
 
     start() {
         this.createNextButton();
         this.createPrevButton();
         this.sliderStyle();
-        this.startsliderPosition();
-        this.createDots();
-        this.activeDot();
+        this.createDuplicateSlide();
+        this.startPosition();
 
         this.nextSlide.addEventListener('click', this.nextSlideF.bind(this));
         this.prevSlide.addEventListener('click', this.prevSlideF.bind(this));
