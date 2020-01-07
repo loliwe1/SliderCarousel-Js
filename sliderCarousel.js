@@ -5,7 +5,7 @@ class SliderCarousel {
         sliderWrapper,
         slider,
         sliderItem,
-        slidesToShow = 1,
+        slidesToShow = 1 ,
         slidesToScroll = 1,
         nextSlide = false,
         prevSlide = false,
@@ -24,6 +24,7 @@ class SliderCarousel {
 
         this.sliderItems = this.saveSlides();
 
+
     }
 
     saveSlides() {
@@ -36,14 +37,14 @@ class SliderCarousel {
 
 
     createDuplicateSlide() {
-        let revArr =  [...this.sliderItems].reverse();
+        let revArr = [...this.sliderItems].reverse();
 
-        for(let i = 0 ; i < this.slidesToShow; i++) {
+        for (let i = 0; i < this.slidesToShow; i++) {
             let firstElem = revArr[i].cloneNode(true);
             this.slider.prepend(firstElem);
         }
 
-        for(let i = 0 ; i < this.slidesToShow; i++) {
+        for (let i = 0; i < this.slidesToShow; i++) {
             let lastElem = this.sliderItems[i].cloneNode(true);
             this.slider.append(lastElem);
         }
@@ -73,6 +74,7 @@ class SliderCarousel {
             this.prevSlide = prevButton;
         }
     }
+
 
     sliderStyle() {
         const style = document.createElement('style');
@@ -104,8 +106,10 @@ class SliderCarousel {
             cursor: pointer;
             }
            .slider__dots-wrapper-style {
+               position: relative;
                display: flex;
                justify-content: space-around;
+               margin-top: 10px;
            }
            .slider__dots-item-style {
             width: 8px;
@@ -126,40 +130,45 @@ class SliderCarousel {
         this.sliderWrapper.classList.add('slider__wrapper-style');
         this.slider.classList.add('slider-style');
         this.sliderItem.forEach(slide => {
-            slide.classList.add('slider__item-style')
+            slide.classList.add('slider__item-style');
         });
+        
     }
 
 
     nextSlideF() {
         if (this.position >= this.sliderItems.length + this.slidesToShow) return;
-        this.position ++;
+        this.position++;
         this.slider.style.transition = `1s all`;
         this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.slidesToScroll * this.position}px)`;
         this.slider.addEventListener('transitionend', this.infiniteSliderNext.bind(this));
+        this.createActiveDot();
     }
 
     prevSlideF() {
         if (this.position <= 0) return;
-        this.position --;
+        this.position--;
         this.slider.style.transition = `1s all`;
         this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll * this.position}px)`;
         this.slider.addEventListener('transitionend', this.infiniteSliderPrev.bind(this));
+        this.createActiveDot();
     }
 
     infiniteSliderNext() {
-        if(this.position === this.sliderItems.length + this.slidesToShow) {
+        if (this.position === this.sliderItems.length + this.slidesToShow) {
             this.position = this.slidesToShow;
             this.slider.style.transition = `none`;
             this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll * this.position}px)`;
+            this.createActiveDot();
 
         }
     }
     infiniteSliderPrev() {
-        if(this.position === 0) {
+        if (this.position === 0) {
             this.position = this.sliderItems.length;
             this.slider.style.transition = `none`;
             this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth  * this.slidesToScroll * this.position}px)`;
+            this.createActiveDot();
         }
     }
 
@@ -171,12 +180,45 @@ class SliderCarousel {
     }
 
 
+    createDots() {
+        let count = 0;
+        let dotsWrap = document.createElement('div');
+        dotsWrap.style.marginLeft = `${this.sliderWrapper.getBoundingClientRect().x}px`;
+        dotsWrap.style.width = `${this.sliderWrapper.getBoundingClientRect().width}px`;
+        dotsWrap.classList.add('slider__dots-wrapper-style');
+        this.sliderWrapper.after(dotsWrap);
+
+        while (count < this.sliderItems.length) {
+            let div = document.createElement('div');
+            div.classList.add('slider__dots-item-style');
+            dotsWrap.append(div);
+            count++;
+        }
+        
+    }
+
+    createActiveDot() {
+        let dots = document.querySelectorAll('.slider__dots-item-style');
+
+        for (let i = 0; i < dots.length; i++) {
+            if(this.position - this.slidesToShow === i ) {
+                dots[i].classList.add('slider__dots-active-item-style');
+            }else {
+                dots[i].classList.remove('slider__dots-active-item-style');
+            }
+            
+        }
+    }
+
     start() {
         this.createNextButton();
         this.createPrevButton();
         this.sliderStyle();
         this.createDuplicateSlide();
         this.startPosition();
+        this.createDots();
+        this.createActiveDot();
+
 
         this.nextSlide.addEventListener('click', this.nextSlideF.bind(this));
         this.prevSlide.addEventListener('click', this.prevSlideF.bind(this));
