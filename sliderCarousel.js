@@ -9,6 +9,8 @@ class SliderCarousel {
         nextSlide = false,
         prevSlide = false,
         dots = true,
+        autoslide = true,
+        speedAutoSlide = 2000,
     }) {
         this.sliderWrapper = document.querySelector(sliderWrapper);
         this.slider = document.querySelector(slider);
@@ -18,7 +20,8 @@ class SliderCarousel {
         this.prevSlide = document.querySelector(prevSlide);
         this.position = 0;
         this.dots = dots;
-
+        this.autoslide = autoslide;
+        this.speedAutoSlide = speedAutoSlide;
         this.sliderItems = this.saveSlides();
 
 
@@ -239,6 +242,15 @@ class SliderCarousel {
         });
     }
 
+    autoSlide() {
+        if(this.autoslide) {
+            setInterval(this.nextSlideF.bind(this), this.speedAutoSlide);
+        }else {
+            return;
+        }
+    }
+
+
     start() {
         this.createNextButton();
         this.createPrevButton();
@@ -248,6 +260,7 @@ class SliderCarousel {
         this.createDots();
         this.createActiveDot();
         this.clickDot();
+        this.autoSlide();
         
         this.nextSlide.addEventListener('click', this.nextSlideF.bind(this));
         this.prevSlide.addEventListener('click', this.prevSlideF.bind(this));
