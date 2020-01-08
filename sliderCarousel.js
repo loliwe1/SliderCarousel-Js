@@ -215,6 +215,29 @@ class SliderCarousel {
         }
     }
 
+    clickDot() {
+        let dotsWrapper = document.querySelector('.slider__dots-wrapper-style');
+        let dots = document.querySelectorAll('.slider__dots-item-style');
+
+
+        dotsWrapper.addEventListener('click', event => {
+            let target = event.target;
+
+            if (target.classList.contains('slider__dots-item-style')) {
+                for (let i = 0; i < dots.length; i++) {
+                    
+                    if (dots[i] === target) {
+                        dots[i].classList.add('slider__dots-active-item-style');
+                        this.position = i + this.slidesToShow;
+                        this.moveSlide.call(this);
+
+                    }else {
+                        dots[i].classList.remove('slider__dots-active-item-style');
+                    }
+                }
+            }
+        });
+    }
 
     start() {
         this.createNextButton();
@@ -224,8 +247,8 @@ class SliderCarousel {
         this.startPosition();
         this.createDots();
         this.createActiveDot();
-
-
+        this.clickDot();
+        
         this.nextSlide.addEventListener('click', this.nextSlideF.bind(this));
         this.prevSlide.addEventListener('click', this.prevSlideF.bind(this));
 
