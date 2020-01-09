@@ -251,20 +251,6 @@ class SliderCarousel {
         }
     }
 
-    slickSlide() {
-        let onMouseMove = event => {
-
-            let newLeft =  this.sliderItem[this.position].offsetLeft - event.clientX;
-            this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position + newLeft}px)`;
-        }
-
-        let onMouseUp = () => document.removeEventListener('mousemove', onMouseMove);
-
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-        this.slider.ondragstart = () => {return false;};
-    }
-
     start() {
         this.createNextButton();
         this.createPrevButton();
@@ -278,7 +264,7 @@ class SliderCarousel {
 
         this.nextSlide.addEventListener('click', this.nextSlideF.bind(this));
         this.prevSlide.addEventListener('click', this.prevSlideF.bind(this));
-        this.slider.addEventListener('mousedown', this.slickSlide.bind(this));
+
 
     }
 }
