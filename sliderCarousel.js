@@ -9,7 +9,7 @@ class SliderCarousel {
         nextSlide = false,
         prevSlide = false,
         dots = true,
-        autoslide = true,
+        autoslide = false,
         speedAutoSlide = 2000,
     }) {
         this.sliderWrapper = document.querySelector(sliderWrapper);
@@ -90,6 +90,7 @@ class SliderCarousel {
            .slider__item-style {
                flex: 0 0 ${100 / this.slidesToShow}%;
                margin: 0;
+               position: relative;
            }
            .slider__prev-style {
             position: absolute;
@@ -228,13 +229,13 @@ class SliderCarousel {
 
             if (target.classList.contains('slider__dots-item-style')) {
                 for (let i = 0; i < dots.length; i++) {
-                    
+
                     if (dots[i] === target) {
                         dots[i].classList.add('slider__dots-active-item-style');
                         this.position = i + this.slidesToShow;
                         this.moveSlide.call(this);
 
-                    }else {
+                    } else {
                         dots[i].classList.remove('slider__dots-active-item-style');
                     }
                 }
@@ -243,13 +244,26 @@ class SliderCarousel {
     }
 
     autoSlide() {
-        if(this.autoslide) {
+        if (this.autoslide) {
             setInterval(this.nextSlideF.bind(this), this.speedAutoSlide);
-        }else {
+        } else {
             return;
         }
     }
 
+    slickSlide() {
+        let onMouseMove = event => {
+
+            let newLeft =  this.sliderItem[this.position].offsetLeft - event.clientX;
+            this.slider.style.transform = `translateX(-${this.sliderItem[0].clientWidth * this.position + newLeft}px)`;
+        }
+
+        let onMouseUp = () => document.removeEventListener('mousemove', onMouseMove);
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        this.slider.ondragstart = () => {return false;};
+    }
 
     start() {
         this.createNextButton();
@@ -261,9 +275,10 @@ class SliderCarousel {
         this.createActiveDot();
         this.clickDot();
         this.autoSlide();
-        
+
         this.nextSlide.addEventListener('click', this.nextSlideF.bind(this));
         this.prevSlide.addEventListener('click', this.prevSlideF.bind(this));
+        this.slider.addEventListener('mousedown', this.slickSlide.bind(this));
 
     }
 }
